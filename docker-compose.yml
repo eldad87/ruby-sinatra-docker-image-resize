@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  #######################################
+  # Main App
+  #######################################
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9292:9292"
+    volumes:
+      # Mount project directory into Docker.
+      - ./app/:/app/
