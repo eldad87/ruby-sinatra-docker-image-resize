@@ -1,3 +1,5 @@
+require 'mini_magick'
+
 class ImageComponent
 
   ##
@@ -28,5 +30,35 @@ class ImageComponent
       final_width = orig_width * (final_height / orig_height.to_f)
     end
     return [final_width.round, final_height.round]
+  end
+
+  ##
+  # Resize and pad given image stream, return
+  # @param img [Stream] - image stream
+  # @param required_width [Integer] - final image width
+  # @param required_height [Integer] - final image height
+  # @return [MiniMagick::Image]
+  #
+  def self.lpad(img, required_width, required_height, format=nil)
+    image = MiniMagick::Image.read(img)
+    final_width, final_height = scale_down_and_keep_ratio(image.width, image.height, required_width, required_height)
+
+    image.combine_options do |f|
+      # Resize
+      f.resize "#{final_width}x#{final_height}"
+
+      # Add padding
+      if final_width < required_width || final_height < required_height
+        f.gravity 'center'
+        f.extent "#{required_width}x#{required_height}"
+        f.background 'black'
+      end
+    end
+
+    unless format.nil?
+      image.format(format)
+    end
+
+    return image
   end
 end
